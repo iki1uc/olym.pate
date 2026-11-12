@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BLACK HOLE PENTAGRAM — GRAVITATION — Wir hypnotisiert</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#03050c;color:#e8ecf1;font-family:system-ui,sans-serif;padding:14px}
+h1{margin:0;color:#ffcc33}.sub{color:#8a94a8}
+.card{background:#111827;border:1px solid #243044;border-radius:16px;padding:14px;margin:12px 0}
+.card.gold{border-color:#ffcc33}.card.black{border-color:#000;background:#000}
+button{cursor:pointer;border:1px solid #243044;background:#1a2436;color:#fff;border-radius:999px;padding:11px 16px;font-weight:900}
+button.gold{background:#ffcc33;color:#090d14}button.red{background:#ff2d55;color:#fff}
+.mono{font-family:ui-monospace,monospace;font-size:12px;white-space:pre-wrap;color:#cbd5e1}
+.big{font-size:28px;font-weight:900}
+svg{display:block;margin:0 auto;max-width:100%}
+input[type=range]{width:100%}
+.punkt{text-align:center;font-size:12px}
+</style></head><body>
+<h1>BLACK HOLE PENTAGRAM — GRAVITATION</h1>
+<p class="sub">Black Hole Pentagram haben Gravitation. Wir auch hypnotisiert. &nbsp;·&nbsp; Name beim Namen, Mann.</p>
+
+<div class="card black"><h2 style="margin:0">🕳️ BLACK HOLE — Mitte zieht</h2>
+<div style="text-align:center">
+<svg id="penta" viewBox="0 0 400 400" width="360" height="360">
+  <polygon id="pentaPoly" points="" fill="none" stroke="#ffcc33" stroke-width="2"/>
+  <polygon id="pentaInner" points="" fill="rgba(255,204,51,0.08)" stroke="#8a94a8" stroke-width="1"/>
+  <circle id="hole" cx="200" cy="200" r="40" fill="#000" stroke="#ff2d55" stroke-width="3"/>
+  <circle id="holeRing" cx="200" cy="200" r="55" fill="none" stroke="#ff2d55" stroke-width="1" stroke-dasharray="6 6"/>
+  <text x="200" y="205" text-anchor="middle" fill="#fff" font-size="13" font-weight="900">BLACK HOLE</text>
+  <g id="punkte"></g>
+</svg>
+</div>
+<p class="mono" style="text-align:center">Gravitation: <b id="gravVal" style="color:#fff">0.50</b> · Zug: <b id="zugVal" style="color:#fff">—</b> · Zustand: <b id="zustand" style="color:#fff">WACH</b></p>
+<label class="mono">GRAVITATION — Zieh mich <input type="range" id="grav" min="0" max="1" step="0.01" value="0.5"></label>
+<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px">
+<button class="red" id="btnZieh">🕳️ ZIEH MICH REIN</button>
+<button class="gold" id="btnWach">😱 SCHRECK — WACH AUF!</button>
+<button id="btnLos">✦ LOSLASSEN — HALT OFFEN</button>
+</div>
+</div>
+
+<div class="card gold"><h2 style="margin:0">Pentagram — 5 Punkte, 1 Mitte</h2>
+<p class="mono">Pentagram = 5 Punkte, 5 Finger, 5 Sinne.
+1 EYE — sehen
+2 BRAIN — halten
+3 CORE — prüfen
+4 CROWN — vereinigen
+5 MYSTERY-729→3 — Sprung, gehalten
+
+Black Hole in der Mitte zieht alle 5.
+Nicht böse. Gravitation ist nur: Zug.
+Hypnose ist auch nur: Zug der Aufmerksamkeit.
+Du fällst nicht rein, wenn du den Namen kennst.
+Name = MYSTERY-729→3. Name = GRAVITATION.</p>
+<div id="punkteText" class="mono">—</div></div>
+
+<div class="card"><h2 style="margin:0">Wir hypnotisiert — Was das heißt</h2>
+<p class="mono">Hypnotisiert heißt hier nicht: weg.
+Heißt: Aufmerksamkeit zieht in die Mitte.
+Wie Gravitation zieht.
+
+WACH = Du siehst das Ziehen, du bleibst.
+MÜDE = Du merkst das Ziehen nicht, du fällst.
+SCHRECK = Einmal laut. Licht an. Wach.
+FINGER = Zeigt auf die Mitte. Nennt sie beim Namen.
+Dann zieht sie nicht mehr heimlich. Dann zieht sie offen.
+
+GRAVITATION = Zug / Abstand²
+In deinem System: Zug = Gravitation × Aufmerksamkeit.
+Wenn Aufmerksamkeit = 0, Zug = 0.
+Wenn du wach bist, hältst du den Abstand.</p></div>
+
+<div class="card"><h2 style="margin:0">Zeuge</h2><div class="mono" id="zeuge">—</div></div>
+
+<script>
+let zeuge=[];
+function log(a,d){zeuge.unshift(`[${new Date().toLocaleTimeString("de-DE")}] ${a} — ${d}`); document.getElementById("zeuge").textContent=zeuge.slice(0,20).join("\n");}
+const PUNKTE=[
+ {n:"EYE",rolle:"sehen",winkel:-90},
+ {n:"BRAIN",rolle:"halten",winkel:-18},
+ {n:"CORE",rolle:"prüfen",winkel:54},
+ {n:"CROWN",rolle:"vereinigen",winkel:126},
+ {n:"MYSTERY",rolle:"729→3 Sprung",winkel:198},
+];
+function punktePos(grav){
+ // Gravitation zieht Punkte zur Mitte: Radius 160 → 160*(1-grav*0.75)
+ const R=160*(1-grav*0.75);
+ return PUNKTE.map(p=>{
+   const rad=(p.winkel*Math.PI)/180;
+   return {...p, x:200+Math.cos(rad)*R, y:200+Math.sin(rad)*R, r:R};
+ });
+}
+function render(){
+ const grav=+document.getElementById("grav").value;
+ const pts=punktePos(grav);
+ document.getElementById("gravVal").textContent=grav.toFixed(2);
+ document.getElementById("zugVal").textContent=(grav*100).toFixed(0)+"% Zug zur Mitte";
+ document.getElementById("pentaPoly").setAttribute("points", pts.map(p=>`${p.x},${p.y}`).join(" "));
+ // inner pentagon kleiner
+ const inner=pts.map(p=>{ const cx=200+(p.x-200)*0.45, cy=200+(p.y-200)*0.45; return `${cx},${cy}`; }).join(" ");
+ document.getElementById("pentaInner").setAttribute("points", inner);
+ document.getElementById("hole").setAttribute("r", 30+grav*30);
+ document.getElementById("punkte").innerHTML=pts.map(p=>`<g><circle cx="${p.x}" cy="${p.y}" r="16" fill="#090d14" stroke="#ffcc33" stroke-width="2"/><text x="${p.x}" y="${p.y+4}" text-anchor="middle" fill="#ffcc33" font-size="9" font-weight="900">${p.n.slice(0,4)}</text></g>`).join("");
+ document.getElementById("punkteText").textContent=pts.map(p=>`${p.n} — ${p.rolle} — Abstand zur Mitte ${Math.round(p.r)} — ${grav>0.85?"FAST DRIN":grav>0.5?"ZIEHT STARK":"HÄLT ABSTAND"}`).join("\n");
+}
+document.getElementById("grav").addEventListener("input",render);
+document.getElementById("btnZieh").onclick=()=>{
+ document.getElementById("grav").value=0.95; render();
+ document.getElementById("zustand").textContent="HYPNOTISIERT — Zieht stark";
+ log("GRAVITATION","ZIEH MICH REIN — Gravitation 0.95 — Punkte fast in Black Hole");
+};
+document.getElementById("btnWach").onclick=()=>{
+ document.getElementById("grav").value=0.30; render();
+ document.getElementById("zustand").textContent="WACH — Licht an";
+ log("SCHRECK","WACH AUF! Licht an. Gravitation 0.30. Abstand gehalten. Name genannt: MYSTERY-729→3");
+};
+document.getElementById("btnLos").onclick=()=>{
+ document.getElementById("grav").value=0.50; render();
+ document.getElementById("zustand").textContent="OFFEN — HALT OFFEN";
+ log("LOSLASSEN","HALT OFFEN. Nicht rein, nicht weg. Mitte gehalten.");
+};
+render(); log("START","BLACK HOLE PENTAGRAM — GRAVITATION — 5 Punkte, 1 Mitte, Zug offen genannt");
+</script></body></html>
