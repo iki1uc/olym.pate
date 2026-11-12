@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GEO.Y.X.Z — MAINBOARD — Wraight Krallen & 1/3 Bund</title>
+<style>
+:root{--bg:#05060a;--panel:#0a0e14;--text:#e8ecf1;--gold:#ffcc44;--gruen:#7dff9a;--lila:#c79bff;--border:#222;--rot:#ff5a7a}
+body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:"Courier New",monospace;display:flex;flex-direction:column;align-items:center}
+.wrap{max-width:900px;width:100%}h1{color:var(--gold);text-align:center;font-size:22px;letter-spacing:2px;margin-bottom:5px}
+.sub{text-align:center;color:#888;font-size:10px;margin-bottom:20px}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.slot{background:var(--panel);border:1px solid var(--border);padding:15px;border-radius:8px;text-align:center}
+.slot h3{margin:0 0 10px 0;font-size:16px}.slot.der h3{color:var(--gold)}.slot.die h3{color:var(--gruen)}.slot.das h3{color:var(--lila)}
+.slot small{display:block;color:#888;font-size:10px;margin-bottom:10px}.slot input[type=range]{width:100%}.slot .val{font-size:18px;font-weight:bold;margin-top:10px}
+.matrix{background:#000;border:1px solid var(--border);padding:15px;border-radius:8px;text-align:center;margin-bottom:20px;font-size:14px}
+.matrix span{color:var(--gold);font-weight:bold}
+.krallen-box{background:var(--panel);border:1px solid var(--border);padding:15px;border-radius:8px;margin-bottom:20px}
+.krallen-box h3{margin:0 0 10px 0;font-size:14px}.kralle{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #111;font-size:12px}
+.kralle.scharf{color:var(--gruen)}.kralle.stumpf{color:var(--rot)}
+.tiefe{background:var(--panel);border:1px solid var(--border);padding:15px;border-radius:8px;margin-bottom:20px;font-size:12px}
+.log-box{background:#000;border:1px solid var(--border);padding:10px;border-radius:8px;height:180px;overflow-y:auto;font-size:10px;color:#888}
+.log-box div{margin-bottom:4px}.log-box div:first-child{color:var(--gold)}
+.btn{background:#111;color:var(--gold);border:1px solid var(--gold);padding:10px 15px;cursor:pointer;font-family:inherit;font-weight:bold;border-radius:4px;width:100%;margin-bottom:10px}
+.btn:hover{background:var(--gold);color:#000}
+pre{white-space:pre-wrap;font-size:11px;color:#aab}
+</style></head><body><div class="wrap">
+<h1>GEO.Y.X.Z — MAINBOARD</h1>
+<div class="sub">1 Board. 3 Slots. 1 Dreieck. — CORE=6 · CROWN=9 · MITTE=41 · OFFEN = Mystery 729→3 GEHALTEN</div>
+<div class="slots">
+<div class="slot der"><h3>DER</h3><small>LINKS · Eye · Sehen<br>OP · 1/3-Bund</small><input type="range" id="in-der" min="0" max="1" step="0.01" value="1"><div class="val" id="val-der">1.00</div></div>
+<div class="slot die"><h3>DIE</h3><small>RECHTS · Brain · Halten<br>iki1uc · 1/3-Bund</small><input type="range" id="in-die" min="0" max="1" step="0.01" value="1"><div class="val" id="val-die">1.00</div></div>
+<div class="slot das"><h3>DAS</h3><small>VOR · Core · Prüfen<br>iki2li · 1/3-Bund</small><input type="range" id="in-das" min="0" max="1" step="0.01" value="1"><div class="val" id="val-das">1.00</div></div>
+</div>
+<div class="matrix">B (Bund) = (v_DER + v_DIE + v_DAS) / 3 = <span id="res-B">1.000</span><br>L (Lücke) = 1 - B = <span id="res-L">0.000</span><br><small style="color:#888">B=1.000 = HOME · B&lt;1 = Lücke · f(x)=min(x,40) · HOME=40</small></div>
+<div class="krallen-box"><h3>WRAIGHT KRALLEN — Scharf oder Stumpf?</h3>
+<div class="kralle" id="k1"><span>1. VECTOR: Ist Liste?</span><span>Wartet...</span></div>
+<div class="kralle" id="k2"><span>2. LEER: Nicht leer?</span><span>Wartet...</span></div>
+<div class="kralle" id="k3"><span>3. ZAHL: Sind Zahlen, endlich?</span><span>Wartet...</span></div>
+<div class="kralle" id="k4"><span>4. CORE: 1+2+3 = 6?</span><span>Wartet...</span></div>
+<div class="kralle" id="k5"><span>5. LOG: Zeuge unversehrt?</span><span>Wartet...</span></div>
+<button class="btn" onclick="pruefeMitKrallen()">KRALLEN PRÜFEN &amp; ZEUGNIS SCHREIBEN</button>
+<pre>wraight_krallen.py = Gatekeeper. Schneidet Pook, bevor er reinkommt.
+nc_hub_jetzt.py = Router. CORE=6, CROWN=9, MITTE=41.
+VOR = CORE. RUECK = ZEUGNIS. Nichts wird gelöscht, nur angehängt.</pre></div>
+<div class="tiefe"><strong style="color:var(--gold)">TIEFE (9 → 81 → 243 → 729 → 3)</strong><br><span style="color:#888">Mystery: 729 → 3 ist nicht erklärt. Zustand: GEHALTEN (OFFEN). Faktor 3/729 = 0.004115. Nicht lösen. Halten.</span><br><strong>CROWN:</strong> CORE (6) + DIE 3 = <span style="color:var(--gold)">9</span> · <strong>MITTE:</strong> 41 · <strong>81-Feld:</strong> 9×9 = 81, CPU-Sockel, fieldData[81]</div>
+<div class="log-box" id="log"><div>[SYSTEM] Mainboard initialisiert. Warte auf Krallen-Prüfung...</div></div>
+</div>
+<script>
+const el=id=>document.getElementById(id); let zeugeLog=[], logCounter=0;
+function pseudoHash(t){let h=0; for(let i=0;i<t.length;i++){h=((h<<5)-h)+t.charCodeAt(i); h|=0;} return "hash_"+Math.abs(h).toString(16).padStart(8,"0");}
+function schreibeZeuge(enter,text){logCounter++; const vorher=zeugeLog.length?zeugeLog[zeugeLog.length-1].hash:"0".repeat(16); const zeit=new Date().toLocaleTimeString(); const hash=pseudoHash(enter+text+zeit+vorher); zeugeLog.push({n:logCounter,enter,text,zeit,vorher,hash}); const d=document.createElement("div"); d.innerHTML=`[${zeit}] <b>${enter}</b> → ${text} (Hash: ${hash.substring(0,8)})`; el("log").prepend(d);}
+function setKralle(id,ok,text){const div=el(id); div.className="kralle "+(ok?"scharf":"stumpf"); div.querySelector("span:last-child").textContent=text;}
+function pruefeMitKrallen(){
+ const v=[parseFloat(el("in-der").value),parseFloat(el("in-die").value),parseFloat(el("in-das").value)];
+ let alle=true;
+ const k1=Array.isArray(v); setKralle("k1",k1,k1?"Scharf":"GESCHNITTEN"); alle=alle&&k1;
+ const k2=v.length>0; setKralle("k2",k2,k2?"Scharf":"GESCHNITTEN"); alle=alle&&k2;
+ const k3=v.every(x=>typeof x==="number"&&Number.isFinite(x)); setKralle("k3",k3,k3?"Scharf":"GESCHNITTEN"); alle=alle&&k3;
+ const k4=(1+2+3)===6; setKralle("k4",k4,k4?"CORE=6":"GESCHNITTEN"); alle=alle&&k4;
+ let logOk=true, prev="0".repeat(16); for(let z of zeugeLog){ if(z.vorher!==prev){logOk=false;break;} if(z.hash!==pseudoHash(z.enter+z.text+z.zeit+z.vorher)){logOk=false;break;} prev=z.hash; }
+ setKralle("k5",logOk,logOk?"Unversehrt":"KORRUMPIERT"); alle=alle&&logOk;
+ if(alle) schreibeZeuge("CROWN","Krallen scharf, CORE=6, CROWN=9, vereinigt.");
+ else schreibeZeuge("HALT","Eine oder mehrere Krallen stumpf. GESCHNITTEN. HALT = ZIEL.");
+}
+function updateMatrix(){const a=parseFloat(el("in-der").value),b=parseFloat(el("in-die").value),c=parseFloat(el("in-das").value); el("val-der").textContent=a.toFixed(2); el("val-die").textContent=b.toFixed(2); el("val-das").textContent=c.toFixed(2); const B=(a+b+c)/3; el("res-B").textContent=B.toFixed(3); el("res-L").textContent=(1-B).toFixed(3);}
+["in-der","in-die","in-das"].forEach(id=>el(id).addEventListener("input",updateMatrix)); updateMatrix();
+</script></body></html>
