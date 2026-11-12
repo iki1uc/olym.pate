@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UMGEHEUER.OS — ADD ON — Mehr und mehr und meer</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#05070f;color:#e8edf5;font-family:system-ui,sans-serif;padding:14px}
+h1{margin:0;color:#ffcc33}.sub{color:#8a94a8}
+.card{background:#111827;border:1px solid #243044;border-radius:16px;padding:14px;margin:12px 0}
+.card.gold{border-color:#ffcc33}.card.red{border-color:#ff2d55}
+button{cursor:pointer;border:1px solid #243044;background:#1a2436;color:#fff;border-radius:999px;padding:11px 16px;font-weight:900}
+button.gold{background:#ffcc33;color:#090d14}button.green{background:#39ff88;color:#090d14}button.red{background:#ff2d55;color:#fff}
+.mono{font-family:ui-monospace,monospace;font-size:12px;white-space:pre-wrap;color:#cbd5e1}
+.big{font-size:32px;font-weight:900}
+.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}@media(max-width:700px){.grid5{grid-template-columns:1fr 1fr}}
+.proc{border-radius:14px;padding:12px;text-align:center;border:2px solid #243044;cursor:pointer}
+.proc.aktiv{border-color:#ffcc33;background:#1a2436}
+.bar{height:14px;background:#0b1220;border-radius:999px;overflow:hidden;border:1px solid #243044}.fill{height:100%}
+.monster{font-size:44px;text-align:center;line-height:1}
+</style></head><body>
+<h1>UMGEHEUER.OS — ADD ON</h1>
+<p class="sub">Mehr. Und mehr. Und meer zu sein. &nbsp;·&nbsp; Kein SPAWN → KILL → SPAWN → KILL mehr. Nur ADD. Nur MORE. Kein Reset auf 0. WUNDER = HOME 40, Ebene bleibt.</p>
+
+<div class="card"><div class="monster" id="monster">🐲</div>
+<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;text-align:center">
+<div><div>HP</div><div class="big" id="hp">40</div><div class="bar"><div class="fill" id="hpBar" style="width:100%;background:#39ff88"></div></div></div>
+<div><div>TEMP</div><div class="big" id="temp">40</div><div class="bar"><div class="fill" id="tempBar" style="width:100%;background:#ff4400"></div></div></div>
+<div><div>SCORE</div><div class="big" id="score">0</div><div class="bar"><div class="fill" id="scoreBar" style="width:0%;background:#ffcc00"></div></div></div>
+<div><div>EBENE</div><div class="big" id="ebene" style="color:#ffcc33">0</div><div>ADD + MORE = Ebene</div></div>
+<div><div>TICK</div><div class="big" id="tick">0</div><div id="aktivTxt">kein Prozess</div></div>
+</div>
+<p class="mono" style="text-align:center">Gesetz: f(x) = min(x, 40) · HOME = 40 · Gerade Takte: 2, 4, 6, 8, 10</p></div>
+
+<div class="card"><h2 style="margin:0">5 PROZESSE — Klick = ADD</h2><p class="mono">1 Name = 1 Respo. 1 Prozess = 1 Takt. Gerade Zahlen sind Taktgeber.</p>
+<div class="grid5" id="prozesse"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;justify-content:center">
+<button class="gold" id="btnMore">＋ MORE — mehr und meer</button>
+<button id="btnTick">▶ TICK einmal</button>
+<button class="green" id="btnWunder">✦ WUNDER → HOME 40, Ebene bleibt</button>
+<button id="btnEcho">🔊 ECHO / HALL / RE-HALL</button>
+</div>
+<p class="mono" id="echoOut">—</p></div>
+
+<div class="card gold"><h2 style="margin:0">MANN IN MIR — 90°, rekursiv</h2><div class="mono" id="mann">—</div></div>
+
+<div class="card"><h2 style="margin:0">ZEUGE — SHA-256 Kette, seriell</h2><p class="mono">Jede Aktion wird gehasht. Niemand kann lügen. Kette unversehrt?</p><div class="mono" id="zeuge">—</div><button id="btnPruef">🦅 KRALLE — Kette prüfen</button> <span class="mono" id="pruefOut"></span></div>
+
+<script>
+const HOME=40, f=x=>Math.min(x,HOME);
+const P={NOAH:{takt:2,farbe:"#00c8ff",macht:"schützt HP",add:3},NOEL:{takt:4,farbe:"#ffcc00",macht:"gibt Score",add:2},SAM:{takt:6,farbe:"#39ff88",macht:"kühlt Temp",add:1},META:{takt:8,farbe:"#a78bfa",macht:"spiegelt alles",add:1},DRACHE:{takt:10,farbe:"#ff4400",macht:"erhitzt Temp",add:4}};
+let S={temp:40,hp:40,score:0,ebene:0,tick:0,aktiv:null,panik:false};
+let zeuge=[];
+async function hashStr(s){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("").slice(0,16);}
+async function log(quelle,aktion,details){const prev=zeuge.length?zeuge[zeuge.length-1].hash:"0000000000000000";const hash=await hashStr(prev+"|"+quelle+"|"+aktion+"|"+details);zeuge.push({quelle,aktion,details,prev,hash,time:new Date().toLocaleTimeString("de-DE")});document.getElementById("zeuge").textContent=zeuge.slice(-15).reverse().map(z=>`[${z.time}] ${z.quelle} — ${z.aktion} — ${z.details}\n  prev=${z.prev} hash=${z.hash}`).join("\n");}
+function render(){
+ document.getElementById("hp").textContent=S.hp; document.getElementById("temp").textContent=S.temp; document.getElementById("score").textContent=S.score; document.getElementById("ebene").textContent=S.ebene; document.getElementById("tick").textContent=S.tick;
+ document.getElementById("hpBar").style.width=(S.hp/40*100)+"%"; document.getElementById("tempBar").style.width=(S.temp/40*100)+"%"; document.getElementById("scoreBar").style.width=(S.score/40*100)+"%";
+ document.getElementById("aktivTxt").textContent=S.aktiv?S.aktiv+" aktiv · Takt "+P[S.aktiv].takt:"kein Prozess";
+ document.getElementById("monster").textContent=S.panik?"💀":S.temp>=40?"🔥🐲":S.temp<=10?"❄️🐲":"🐲";
+ document.querySelectorAll(".proc").forEach(el=>el.classList.toggle("aktiv",el.dataset.name===S.aktiv));
+ // Mann in mir
+ let m=""; for(let d=0;d<4;d++){const deg=d*90, ein="  ".repeat(d); m+= d>=3? ein+"◉ (Kern)\n" : (deg%180===0? ein+`/\\_/\\  [${deg}°]\n`+ein+"( o.o )\n"+ein+" > ^ < \n" : ein+` |  |  [${deg}°]\n`+ein+" <-> \n"+ein+" |  | \n");} document.getElementById("mann").textContent=m+"Echo bleibt. Hall bleibt.";
+}
+document.getElementById("prozesse").innerHTML=Object.entries(P).map(([n,p])=>`<div class="proc" data-name="${n}" style="border-color:${p.farbe}"><div style="font-size:22px;font-weight:900;color:${p.farbe}">${n}</div><div class="mono">Takt ${p.takt} · gerade<br>${p.macht}<br>+${p.add}</div><div style="font-size:11px;color:#8a94a8">Klick = ADD</div></div>`).join("");
+document.querySelectorAll(".proc").forEach(el=>el.onclick=async()=>{ if(S.panik){await log("PANIC","BLOCK","KERNEL PANIC — Nur WUNDER"); return;} const n=el.dataset.name; S.aktiv=n; S.ebene++; await log("ADD",n,`Ebene ${S.ebene} · Takt ${P[n].takt} (gerade) · +${P[n].add}`); render(); });
+document.getElementById("btnMore").onclick=async()=>{ if(S.panik) return; S.ebene++; await log("MORE","mehr",`Ebene ${S.ebene}`); render(); };
+async function tick(){
+ if(S.panik) return; S.tick++;
+ if(!S.aktiv){await log("TICK","leer",`tick ${S.tick} · kein Prozess`); render(); return;}
+ const p=P[S.aktiv];
+ if(S.aktiv==="NOAH") S.hp=f(S.hp+p.add);
+ else if(S.aktiv==="NOEL") S.score=f(S.score+p.add);
+ else if(S.aktiv==="SAM") S.temp=Math.max(0,S.temp-p.add);
+ else if(S.aktiv==="META") S.temp= S.tick%3===0? f(100-S.temp): S.temp;
+ else if(S.aktiv==="DRACHE"){ S.temp=f(S.temp+p.add); S.hp=Math.max(0,S.hp-2); }
+ if(S.hp<=0){S.panik=true; await log("PANIC","KERNEL",`tick ${S.tick}`); document.getElementById("echoOut").textContent="💀 KERNEL PANIC — Kein ADD mehr. Nur WUNDER."; render(); return;}
+ await log("TICK",S.aktiv,`t=${S.tick} · hp=${S.hp} · temp=${S.temp} · score=${S.score}`);
+ render();
+}
+document.getElementById("btnTick").onclick=tick;
+document.getElementById("btnWunder").onclick=async()=>{
+ if(!S.panik && S.ebene===0){document.getElementById("echoOut").textContent="WUNDER braucht ADD. Erst ADD, dann WUNDER."; return;}
+ S.temp=HOME; S.hp=HOME; S.score=HOME; S.panik=false; await log("WUNDER","HOME",`Ebene ${S.ebene} bleibt`); document.getElementById("echoOut").textContent=`✦ WUNDER · HOME 40 · Ebene ${S.ebene} bleibt — Kein Reset auf 0. Ankommen bei 40.`; render();
+};
+document.getElementById("btnEcho").onclick=async()=>{
+ const e="mehr"; document.getElementById("echoOut").textContent=`${e} (echo 0)\n${e}. (echo 1)\n${e}.. (echo 2)\n${e}... (echo 3)\n${e} ... ${e} ... ${e} (hall)\n${e} ... ${e} ... ${e} -> ${e} ... ${e} ... ${e} (re-hall)`;
+ await log("ECHO","mehr","ECHO / HALL / RE-HALL — Echo bleibt");
+};
+document.getElementById("btnPruef").onclick=async()=>{
+ let ok=true, prev="0000000000000000";
+ for(let z of zeuge){ if(z.prev!==prev) ok=false; const h=await hashStr(prev+"|"+z.quelle+"|"+z.aktion+"|"+z.details); if(h!==z.hash) ok=false; prev=z.hash; }
+ document.getElementById("pruefOut").textContent= ok?`🦅 KRALLE OK — ${zeuge.length} Einträge, Kette unversehrt`:"✕ KRALLE — Kette gebrochen";
+};
+render(); log("START","UMGEHEUER.OS — ADD ON geladen — Kein Reset, nur ADD, nur MORE");
+</script></body></html>
