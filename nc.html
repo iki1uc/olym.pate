@@ -1,0 +1,59 @@
+<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OURL — NC CORE — O_ij FIX — INDEX</title>
+<style>body{margin:0;background:#05060a;color:#e8ecf1;font-family:"Courier New",monospace;padding:16px}h1{color:#ffcc44;font-size:18px;text-align:center;margin:0}.sub{text-align:center;color:#888;font-size:10px;margin:6px 0 14px}.grid{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}.panel{background:#0a0e14;border:1px solid #222;border-radius:8px;padding:12px}canvas{background:#000;border:1px solid #222;border-radius:8px}button{background:#111;color:#ffcc44;border:1px solid #ffcc44;padding:8px 10px;cursor:pointer;font-family:inherit;font-weight:bold;border-radius:4px;margin:2px}button:hover{background:#ffcc44;color:#000}input{background:#111;color:#fff;border:1px solid #333;padding:8px;width:90px}pre{white-space:pre-wrap;font-size:11px;color:#aab}.log{height:120px;overflow:auto;background:#000;border:1px solid #222;padding:8px;font-size:10px;color:#888}.ok{color:#7dff9a}.bad{color:#ff5a7a}.small{font-size:11px;color:#888}table{border-collapse:collapse;font-size:10px}td{border:1px solid #222;padding:4px 6px;text-align:center;min-width:42px}td.sym{background:#0a1a0a}td.asym{background:#2a0a0a;color:#ff5a7a}</style></head><body>
+<h1>OURL — NC CORE — O_ij FIX — INDEX</h1><div class="sub">O_ij = i·j · 81 Basiswerte · TIEFE 1-9 symbolisch · FIX: sin(t+i)·sin(t+j) · HOME 40 · f(x)=min(x,40)</div>
+<div class="grid"><div class="panel"><canvas id="cv" width="540" height="540"></canvas><div class="small">Grün = symmetrisch O_ij = O_ji · Rot = Fehler, asymmetrisch · t = <b id="tval">0.00</b> · L = <b id="lval">0</b> · COMPLETTUM wenn L = 0</div></div>
+<div class="panel" style="width:360px"><b>NC COMMANDS — NC CORE</b><br>
+<button onclick="nc('NC.START')">NC.START</button><button onclick="nc('NC.SCAN')">NC.SCAN</button><button onclick="nc('NC.FIX')">NC.FIX</button><button onclick="nc('NC.CHECK')">NC.CHECK</button><br>
+<button onclick="nc('NC.HOME')">NC.HOME 40</button><button onclick="nc('NC.HALT')">NC.HALT</button><button onclick="nc('NC.WAKE')">NC.WAKE</button><button onclick="nc('NC.LIE')">NC.LIE</button><br>
+<button onclick="nc('NC.EXPORT')">NC.EXPORT</button><br><br>
+<b>t (Zeit)</b> <input id="tIn" type="number" step="0.1" value="0"><button onclick="setT()">SET t</button><button onclick="playT()">PLAY t</button><button onclick="stopT()">STOP</button><br><br>
+<b>FIX-Umschalter — Zeuge</b><br><button onclick="setFix(false)">ALT: sin(t+i)*j — FEHLER zeigen</button><br><button onclick="setFix(true)">NEU: sin(t+i)*sin(t+j) — FIX</button><br>
+<div id="msg" class="small"></div><br><b>PRÜFUNG</b><div id="check" class="small"></div><br><b>ZEUGE / HISTORY</b><div id="log" class="log"></div><pre id="out"></pre></div></div>
+<div class="grid"><div class="panel"><b>O_ij(t) — 9x9 MATRIX — i,j = 1..9</b><div id="matrix"></div></div>
+<div class="panel"><b>GEGENBEISPIEL — O12 vs O21</b><div id="gegen" class="small"></div><br><b>FORMELN</b><pre>BASE:  O_ij = i * j
+ALT (FEHLER):  O_ij(t) = sin(t+i) * j
+  -> O12 != O21, weil j nicht moduliert
+NEU (FIX):  O_ij(t) = sin(t+i) * sin(t+j)
+  -> O_ij = O_ji, Symmetrie wiederhergestellt
+  -> weil sin(t+i)*sin(t+j) = sin(t+j)*sin(t+i)
+TIEFE 1-9: symbolische Operationsfolge
+  TIEFE k = k-te Anwendung / k-te Schicht
+  nicht mathematisch bewiesen, konsistent gehalten
+HOME 40: f(x)=min(x,40)
+COMPLETTUM: L = max |O_ij - O_ji| = 0</pre></div></div>
+<script>
+let t=0, useFix=true, playing=false, timer=null, history=[];
+function log(m,ok=true){ const d=document.createElement("div"); d.innerHTML=`[${new Date().toLocaleTimeString()}] <span class="${ok?'ok':'bad'}">${m}</span>`; document.getElementById("log").prepend(d); }
+function push(a,extra={}){ history.push({action:a,t,fix:useFix,time:new Date().toISOString(),...extra}); }
+function O(i,j){ if(useFix) return Math.sin(t+i)*Math.sin(t+j); else return Math.sin(t+i)*j; }
+function base(i,j){ return i*j; }
+function maxAsym(){ let m=0; for(let i=1;i<=9;i++) for(let j=1;j<=9;j++) m=Math.max(m,Math.abs(O(i,j)-O(j,i))); return m; }
+function draw(){
+  const cv=document.getElementById("cv"), ctx=cv.getContext("2d"); ctx.clearRect(0,0,540,540);
+  const cell=60; for(let i=1;i<=9;i++) for(let j=1;j<=9;j++){ let x=(j-1)*cell, y=(i-1)*cell; let v=O(i,j); let asym=Math.abs(v-O(j,i))>1e-9; ctx.fillStyle=asym?"#2a0a0a":(i===j?"#1a2a1a":"#0a0a0a"); ctx.fillRect(x+2,y+2,56,56); ctx.strokeStyle=asym?"#ff5a7a":"#222"; ctx.strokeRect(x+2,y+2,56,56); ctx.fillStyle=asym?"#ff5a7a":"#ffcc44"; ctx.font="bold 11px Courier"; ctx.fillText(`O${i}${j}`,x+6,y+18); ctx.fillStyle="#888"; ctx.font="10px Courier"; ctx.fillText(`base ${base(i,j)}`,x+6,y+34); ctx.fillText(v.toFixed(3),x+6,y+50); }
+  document.getElementById("tval").textContent=t.toFixed(2); let L=maxAsym(); document.getElementById("lval").textContent=L.toFixed(6);
+  let html="<table><tr><td></td>"; for(let j=1;j<=9;j++) html+=`<td>j=${j}</td>`; html+="</tr>";
+  for(let i=1;i<=9;i++){ html+=`<tr><td>i=${i}</td>`; for(let j=1;j<=9;j++){ let asym=Math.abs(O(i,j)-O(j,i))>1e-9; html+=`<td class="${asym?'asym':'sym'}">${O(i,j).toFixed(3)}</td>`; } html+="</tr>"; } html+="</table>";
+  document.getElementById("matrix").innerHTML=html;
+  document.getElementById("gegen").innerHTML=`O12(t) = ${O(1,2).toFixed(6)}<br>O21(t) = ${O(2,1).toFixed(6)}<br>Differenz = ${Math.abs(O(1,2)-O(2,1)).toFixed(6)}<br>${Math.abs(O(1,2)-O(2,1))<1e-9?'STATUS: <span class="ok">SYMMETRISCH — FIX WIRKT</span>':'STATUS: <span class="bad">ASYMMETRISCH — FEHLER</span>'}<br>max |O_ij - O_ji| = ${L.toFixed(6)} = L<br>${L<1e-9?'COMPLETTUM: L = 0 — reiner Transport':'KEIN COMPLETTUM: L != 0 — Drift'}`;
+  document.getElementById("check").innerHTML=`Basis: 81 Werte, O_ij = i·j, korrekt<br>TIEFE: 1-9 symbolisch, konsistent<br>Symmetrie: ${L<1e-9?'OK':'FEHLER'}<br>Fix aktiv: ${useFix?'JA — sin(t+i)*sin(t+j)':'NEIN — ALT sin(t+i)*j'}<br>History: ${history.length} Einträge`;
+}
+function nc(cmd){
+  if(cmd==="NC.START"){ push(cmd); log("NC.START — OURL INDEX gestartet"); }
+  if(cmd==="NC.SCAN"){ push(cmd,{L:maxAsym()}); log(`NC.SCAN — L = ${maxAsym().toFixed(6)} — ${maxAsym()<1e-9?'COMPLETTUM':'DRIFT'}`); }
+  if(cmd==="NC.FIX"){ useFix=true; push(cmd); log("NC.FIX — FIX ANGENOMMEN: sin(t+i)*sin(t+j)",true); }
+  if(cmd==="NC.CHECK"){ let L=maxAsym(); push(cmd,{L}); log(`NC.CHECK — O12=${O(1,2).toFixed(6)} O21=${O(2,1).toFixed(6)} Diff=${Math.abs(O(1,2)-O(2,1)).toFixed(6)}`, L<1e-9); }
+  if(cmd==="NC.HOME"){ t=0; push(cmd); log("NC.HOME 40 — t = 0, HOME"); }
+  if(cmd==="NC.HALT"){ stopT(); push(cmd); log("NC.HALT — HALT vor Expansion, Zeuge steht"); }
+  if(cmd==="NC.WAKE"){ push(cmd); log("NC.WAKE — WAKE, AUTO WAKE"); }
+  if(cmd==="NC.LIE"){ push(cmd); log("NC.LIE — LIE, AUTO LIE"); }
+  if(cmd==="NC.EXPORT"){ const p={format:"OURL-NC-CORE",version:1,t,fix:useFix,L:maxAsym(),base:"O_ij=i*j",alt:"sin(t+i)*j",neu:"sin(t+i)*sin(t+j)",history}; const b=new Blob([JSON.stringify(p,null,2)],{type:"application/json"}); const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download="ourl-nc-core-oij-fix.json"; a.click(); log("NC.EXPORT — mit Fix + History"); document.getElementById("out").textContent=JSON.stringify({format:p.format,version:1,t,fix:useFix,L:p.L,history:history.length},null,2); }
+  draw();
+}
+function setFix(v){ useFix=v; push(v?"FIX-ON":"FIX-OFF"); log(v?"FIX AN: sin(t+i)*sin(t+j) — symmetrisch":"FIX AUS: sin(t+i)*j — FEHLER sichtbar, zum Beweisen",v); draw(); }
+function setT(){ t=parseFloat(document.getElementById("tIn").value)||0; push("SET-t",{t}); log(`t = ${t}`); draw(); }
+function playT(){ if(playing) return; playing=true; timer=setInterval(()=>{ t+=0.05; document.getElementById("tIn").value=t.toFixed(2); draw(); },50); log("PLAY t — Modulation läuft"); }
+function stopT(){ playing=false; if(timer) clearInterval(timer); }
+draw(); log("NC CORE — INDEX geladen. FIX: sin(t+i)*sin(t+j)."); log("NC CORE ENTSCHEIDUNG: FIX ANGENOMMEN.");
+</script></body></html>
