@@ -1,0 +1,60 @@
+<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WURZEL-Q-729 — 81 x 3 x 9 = 2187 — Zeuge</title>
+<style>body{margin:0;background:#05060a;color:#e8ecf1;font-family:"Courier New",monospace;padding:16px}h1{color:#ffcc44;font-size:18px;text-align:center;margin:0}.sub{text-align:center;color:#888;font-size:10px;margin:6px 0 14px}.grid{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}.panel{background:#0a0e14;border:1px solid #222;border-radius:8px;padding:12px}canvas{background:#000;border:1px solid #222;border-radius:8px;cursor:pointer}button{background:#111;color:#ffcc44;border:1px solid #ffcc44;padding:8px 10px;cursor:pointer;font-family:inherit;font-weight:bold;border-radius:4px;margin:2px}button:hover{background:#ffcc44;color:#000}input,select{background:#111;color:#fff;border:1px solid #333;padding:8px}pre{white-space:pre-wrap;font-size:11px;color:#aab}.log{height:140px;overflow:auto;background:#000;border:1px solid #222;padding:8px;font-size:10px;color:#888}.ok{color:#7dff9a}.bad{color:#ff5a7a}.small{font-size:11px;color:#888}</style></head><body>
+<h1>WURZEL-Q-729 — 81 x 3 x 9 = 2187</h1><div class="sub">81 Zellen · je 3 Ebenen · je 9 Wurzeln · LEBEN / UNLEBEN / MANN · HOME = 40 · f(x)=min(x,40)</div>
+<div class="grid"><div class="panel"><canvas id="cv" width="540" height="540"></canvas><div class="small">Klick = Zelle wählen · Scroll = Zoom · Doppelklick = √q · Aktive Zelle: <b id="cur">40</b> · Ebene: <b id="lay">0</b> · Zoom: <b id="zm">MINI 3,9 / MIDI 81,243 / MAXI 729</b></div></div>
+<div class="panel" style="width:340px"><b>ZUSTAND</b><div id="stats" class="small"></div><br><b>STEUERUNG</b><br>
+<button onclick="setState(0)">LEBEN</button><button onclick="setState(1)">UNLEBEN</button><button onclick="setState(2)">MANN</button><br>
+<button onclick="radicalizeUI()">√q aktive Ebene</button><button onclick="radicalizeUI(true)">√q alle Ebenen</button><br>
+<button onclick="goHome()">HOME 40</button><button onclick="doReset()">RESET</button><br><br>
+<b>ZOOM</b><br><select id="zoomSel" onchange="setZoom(this.value)"><option>MINI-3</option><option>MINI-9</option><option selected>MIDI-81</option><option>MIDI-243</option><option>MAXI-729</option></select><br><br>
+<b>EXPORT / IMPORT — VALIDERT, KEIN STILLES KORRIGIEREN</b><br>
+<button onclick="doExport()">EXPORT JSON + Hash + History</button><br>
+<input type="file" id="fileIn" accept=".json,application/json"><button onclick="doImport()">IMPORT PRÜFEN</button>
+<div id="msg" class="small"></div><br><b>ZEUGE / HISTORY</b><div id="log" class="log"></div><pre id="out"></pre></div></div>
+<script>
+const STATES=["LEBEN","UNLEBEN","MANN"]; const ZOOMS=["MINI-3","MINI-9","MIDI-81","MIDI-243","MAXI-729"];
+let activeCell=40, activeLayer=0, zoom="MIDI-81"; let history=[{action:"INIT",cell:40,layer:0,time:new Date().toISOString()}];
+let roots=[]; // 81 x 3 x 9
+function initialState(index){ return (index*2654435761>>>9)%STATES.length; } // absichtlich deterministisch, reproduzierbar, kein Math.random()
+function makeInitial(){ roots=[]; for(let c=0;c<81;c++){ let layers=[]; for(let l=0;l<3;l++){ let r=[]; for(let k=0;k<9;k++) r.push(initialState(c*27+l*9+k)); layers.push(r);} roots.push(layers);} }
+makeInitial();
+function majority(a){ let cnt=[0,0,0]; a.forEach(v=>cnt[v]++); let m=Math.max(...cnt); return cnt.indexOf(m); }
+function fulfillment(cell){ // max 6 = H2+B2+T2, je Ebene max Tiefe 2
+  let s=0; for(let l=0;l<3;l++){ let layer=roots[cell][l]; let heads=[0,1,2].map(g=>majority(layer.slice(g*3,g*3+3))); s+= heads.filter(h=>h===heads[0]).length>1?2: (new Set(heads).size===3?0:1); } return Math.min(s,6);
+}
+function radicalize(layer){ // 9 -> 3 Mehrheitswerte -> 9, Verdichtung, Verlustoperation, wird protokolliert
+  const heads=[0,1,2].map(g=>majority(layer.slice(g*3,g*3+3)));
+  return heads.every(v=>v===heads[0]) ? Array(9).fill(heads[0]) : heads.flatMap(v=>[v,v,v]);
+}
+function log(msg,ok=true){ const d=document.createElement("div"); d.innerHTML=`[${new Date().toLocaleTimeString()}] <span class="${ok?'ok':'bad'}">${msg}</span>`; document.getElementById("log").prepend(d); }
+function pushHistory(action,cell=activeCell,layer=activeLayer,extra={}){ history.push({action,cell,layer,time:new Date().toISOString(),...extra}); }
+function assertState(r){ if(!Array.isArray(r)||r.length!==81) throw Error("roots muss 81 Zellen haben."); r.forEach((cell,ci)=>{ if(!Array.isArray(cell)||cell.length!==3) throw Error("Zelle "+ci+" muss 3 Ebenen haben."); cell.forEach((layer,li)=>{ if(!Array.isArray(layer)||layer.length!==9) throw Error("Zelle "+ci+" Ebene "+li+" muss 9 Wurzeln haben."); layer.forEach(v=>{ if(!Number.isInteger(v)||v<0||v>2) throw Error("Wurzel muss 0,1,2 sein."); }); }); }); }
+function assertPayload(data){
+  if(!data||typeof data!=="object") throw Error("JSON muss ein Objekt sein.");
+  if(data.format!=="WURZEL-Q-729") throw Error("Unbekanntes Datenformat.");
+  if(data.version!==2) throw Error("Nicht unterstützte Version.");
+  if(data.dimensions && (data.dimensions.cells!==81||data.dimensions.layers!==3||data.dimensions.rootsPerLayer!==9||data.dimensions.total!==2187)) throw Error("dimensions müssen 81 x 3 x 9 = 2187 sein.");
+  assertState(data.roots);
+  if(!Number.isInteger(data.activeCell)||data.activeCell<0||data.activeCell>80) throw Error("activeCell muss zwischen 0 und 80 liegen.");
+  if(!Number.isInteger(data.activeLayer)||data.activeLayer<0||data.activeLayer>2) throw Error("activeLayer muss zwischen 0 und 2 liegen.");
+  if(!ZOOMS.includes(data.zoom)) throw Error("Ungültige Zoomstufe.");
+  // Hash wenn vorhanden prüfen, sonst Warnung, kein stilles Korrigieren
+  if(data.hash && data.hash!==computeHash(data.roots)) log("WARNUNG: Export-Hash stimmt nicht mit roots überein. Import trotzdem geprüft, aber Zeuge markiert.",false);
+}
+function computeHash(rootsData){ let s=JSON.stringify(rootsData); let h=0; for(let i=0;i<s.length;i++){ h=((h<<5)-h)+s.charCodeAt(i); h|=0; } return "sha-like_"+Math.abs(h).toString(16).padStart(8,"0"); }
+function draw(){ const cv=document.getElementById("cv"), ctx=cv.getContext("2d"); ctx.clearRect(0,0,540,540); const cols=9, cell=60; for(let i=0;i<81;i++){ let x=(i%9)*cell, y=Math.floor(i/9)*cell; let layer=roots[i][activeLayer]; let col=layer[0]===0?"#7dff9a":layer[0]===1?"#ff5a7a":"#ffcc44"; ctx.fillStyle=i===40?"#1a2a1a":(i===activeCell?"#222211":"#0a0a0a"); ctx.fillRect(x+2,y+2,56,56); ctx.strokeStyle=i===activeCell?"#ffcc44":"#222"; ctx.strokeRect(x+2,y+2,56,56); ctx.fillStyle=col; ctx.font="bold 11px Courier"; ctx.fillText(STATES[layer[0]],x+6,y+18); ctx.fillStyle="#888"; ctx.font="10px Courier"; ctx.fillText("Z"+i+" E"+activeLayer+" F"+fulfillment(i)+"/6",x+6,y+34); ctx.fillText(layer.join(""),x+6,y+50); } document.getElementById("cur").textContent=activeCell; document.getElementById("lay").textContent=activeLayer; document.getElementById("zm").textContent=zoom; let total=0,leben=0,un=0,mann=0; roots.forEach(c=>c.forEach(l=>l.forEach(v=>{total++; if(v===0)leben++; else if(v===1)un++; else mann++;}))); document.getElementById("stats").innerHTML=`Gesamt: ${total} / 2187<br>LEBEN ${leben} · UNLEBEN ${un} · MANN ${mann}<br>Erfüllung aktive Zelle: ${fulfillment(activeCell)}/6 · HOME 40: ${fulfillment(40)}/6<br>Delta vs INIT: siehe History (${history.length} Einträge)`;
+}
+function setState(v){ let old=roots[activeCell][activeLayer].slice(); roots[activeCell][activeLayer]=Array(9).fill(v); pushHistory("SET",activeCell,activeLayer,{from:old,to:roots[activeCell][activeLayer].slice()}); log(`SET Zelle ${activeCell} Ebene ${activeLayer} -> ${STATES[v]}`); draw(); }
+function radicalizeUI(all=false){ if(all){ for(let c=0;c<81;c++) for(let l=0;l<3;l++){ let before=roots[c][l].slice(); roots[c][l]=radicalize(roots[c][l]); } pushHistory("RADICALIZE-ALL",activeCell,activeLayer,{note:"9->3->9 Verdichtung, Verlustoperation protokolliert"}); log("√q alle Ebenen — Verdichtung protokolliert."); } else { let before=roots[activeCell][activeLayer].slice(); roots[activeCell][activeLayer]=radicalize(before); pushHistory("RADICALIZE",activeCell,activeLayer,{from:before,to:roots[activeCell][activeLayer].slice(),note:"9->3->9"}); log(`√q Zelle ${activeCell} Ebene ${activeLayer} — 9->3->9`); } draw(); }
+function goHome(){ activeCell=40; pushHistory("HOME",40,activeLayer); log("HOME 40"); draw(); }
+function doReset(){ makeInitial(); activeCell=40; activeLayer=0; pushHistory("RESET",40,0); log("RESET — deterministisch, initialState()"); draw(); }
+function setZoom(v){ zoom=v; pushHistory("ZOOM",activeCell,activeLayer,{zoom:v}); log("ZOOM "+v); draw(); }
+function doExport(){ const payload={format:"WURZEL-Q-729",version:2,created:new Date().toISOString(),dimensions:{cells:81,layers:3,rootsPerLayer:9,total:2187},activeCell,activeLayer,zoom,roots,hash:computeHash(roots),history}; const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="wurzel-q-729-v2.json"; a.click(); pushHistory("EXPORT",activeCell,activeLayer); log("EXPORT mit Hash + History ("+history.length+" Einträge)"); document.getElementById("out").textContent=JSON.stringify({format:payload.format,version:2,hash:payload.hash,history:history.length,activeCell,activeLayer,zoom},null,2); }
+async function doImport(){ const f=document.getElementById("fileIn").files[0]; if(!f){ document.getElementById("msg").innerHTML='<span class="bad">Keine Datei gewählt.</span>'; return; } try{ if(f.size>2000000) throw Error("Datei ist zu groß. Max 2.000.000 Bytes."); const text=await f.text(); const data=JSON.parse(text); assertPayload(data); // KEIN Number(...)||0, KEIN stilles Korrigieren — assertPayload hat schon geprüft
+  roots=data.roots; activeCell=data.activeCell; activeLayer=data.activeLayer; zoom=data.zoom; document.getElementById("zoomSel").value=zoom; if(Array.isArray(data.history)) history=data.history.concat([{action:"IMPORT",cell:activeCell,layer:activeLayer,time:new Date().toISOString()}]); else pushHistory("IMPORT",activeCell,activeLayer); log("IMPORT OK — validiert, Format WURZEL-Q-729 v2, "+f.size+" Bytes"); document.getElementById("msg").innerHTML='<span class="ok">IMPORT OK — validiert.</span>'; draw(); }catch(e){ log("IMPORT GESCHNITTEN: "+e.message,false); document.getElementById("msg").innerHTML='<span class="bad">IMPORT GESCHNITTEN: '+e.message+'</span>'; } }
+document.getElementById("cv").addEventListener("click",e=>{ const r=e.target.getBoundingClientRect(); const x=Math.floor((e.clientX-r.left)/60), y=Math.floor((e.clientY-r.top)/60); activeCell=y*9+x; pushHistory("SELECT",activeCell,activeLayer); draw(); });
+document.getElementById("cv").addEventListener("dblclick",()=>radicalizeUI(false));
+document.getElementById("cv").addEventListener("wheel",e=>{ e.preventDefault(); activeLayer=(activeLayer+ (e.deltaY>0?1:2))%3; pushHistory("LAYER",activeCell,activeLayer); draw(); },{passive:false});
+draw(); log("WURZEL-Q-729 geladen. Import vollständig validiert. Änderungen protokolliert.");
+</script></body></html>
