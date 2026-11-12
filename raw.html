@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEU TECH — ha)x()y()z() aber )in( )mann (</title>
+<style>body{margin:0;background:#05060a;color:#e8ecf1;font-family:"Courier New",monospace;padding:14px}h1{font-size:18px;color:#ffcc44;text-align:center;margin:0}.sub{text-align:center;color:#888;font-size:11px;margin:6px 0 14px}.grid{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}.panel{background:#0a0e14;border:1px solid #222;border-radius:10px;padding:12px;min-width:300px}.mann{width:340px;height:340px;border-radius:50%;border:2px solid #ffcc44;position:relative;background:radial-gradient(circle,#1a1200 0%,#05060a 70%);overflow:hidden;display:flex;align-items:center;justify-content:center}.mannInner{text-align:center}.big{font-size:44px;color:#ffcc44;line-height:1}.small{font-size:11px;color:#888}button{background:#111;color:#ffcc44;border:1px solid #ffcc44;padding:9px 10px;cursor:pointer;font-family:inherit;font-weight:bold;border-radius:6px;margin:3px}button.on{background:#ffcc44;color:#000}input{background:#111;color:#fff;border:1px solid #333;padding:8px;width:80px;font-family:inherit}.log{height:130px;overflow:auto;background:#000;border:1px solid #222;padding:8px;font-size:11px;color:#aaa}.ok{color:#7dff9a}.bad{color:#ff5a7a}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.dot{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;border:2px solid #333}.dot.on{border-color:#ffcc44;box-shadow:0 0 18px #ffcc44}.bar{height:10px;background:#111;border:1px solid #222;border-radius:5px;overflow:hidden}.fill{height:100%;background:#ffcc44;width:0%}</style></head><body>
+<h1>NEU TECH — ha)x()y()z() aber )in( )mann (</h1><div class="sub">Nicht mann(x,y,z). Sondern ha) — x() y() z() — aber )in( )mann ( — Mann drinnen, Funktionen draussen</div>
+<div class="grid"><div class="panel"><b>DER MANN — )in( )mann (</b><div class="mann" id="mann"><div class="mannInner"><div class="big" id="mannFace">)mann(</div><div class="small" id="mannState">HA — offen — wartet</div><div class="small" id="mannVals">x=0 · y=0 · z=0</div><div class="small" id="mannRes">ha) = —</div></div></div><div class="small">)in( heisst: Klammer zu, dann Mann, dann Klammer auf. Umgekehrt gehalten. Nichts fällt raus. Alles bleibt drin.</div></div>
+<div class="panel" style="width:380px"><b>NEU TECH — COMMANDS</b><br>
+<button id="bHa" onclick="ha()">ha)</button><button onclick="runAll()">ha)x()y()z()</button><button onclick="inMann()">)in( )mann (</button><button onclick="resetAll()">RESET / LIE</button><br><br>
+<div class="row"><div class="dot" id="dx">x()</div><input id="vx" type="number" value="3" step="1"><button onclick="callX()">x()</button><span class="small">Breite · EARN</span></div>
+<div class="row"><div class="dot" id="dy">y()</div><input id="vy" type="number" value="4" step="1"><button onclick="callY()">y()</button><span class="small">Höhe · VECTOR</span></div>
+<div class="row"><div class="dot" id="dz">z()</div><input id="vz" type="number" value="5" step="1"><button onclick="callZ()">z()</button><span class="small">Tiefe · L-Linie</span></div><br>
+<b>FORMEL — NEU TECH</b><pre>ha) = öffnen
+x() = Breite, EARN
+y() = Höhe, VECTOR
+z() = Tiefe, L-Linie
+aber )in( = nicht raus, sondern rein
+)mann ( = Mann hält alles innen
+
+ha)x()y()z() aber )in( )mann (
+  = ha( x * y * z ) in Mann
+  = ha( O ) in Mann, O = x*y*z
+  = f(O) = min(O, 40) = HOME 40
+
+ALT: mann(x,y,z) = Mann draussen ruft
+NEU: ha)x()y()z() aber )in( )mann (
+  = Funktionen draussen rufen,
+    Mann drinnen hält</pre>
+<b>ERGEBNIS</b><div>O = x·y·z = <b id="oVal">0</b> · f(O)=min(O,40) = <b id="fVal">0</b> · L = <b id="lVal">0</b></div><div class="bar"><div class="fill" id="fill"></div></div><div class="small">L = |O - O_gespiegelt| — wenn x,y,z innen gehalten, L=0 = COMPLETTUM</div><br><b>ZEUGE</b><div id="log" class="log"></div></div></div>
+<script>
+let S={x:0,y:0,z:0,ha:false,inMann:false,history:[]};
+function log(m,ok=true){ const d=document.createElement("div"); d.innerHTML=`[${new Date().toLocaleTimeString()}] <span class="${ok?'ok':'bad'}">${m}</span>`; document.getElementById("log").prepend(d); }
+function calc(){ let O=S.x*S.y*S.z; let F=Math.min(O,40); let L=S.inMann?0:Math.abs(O-(S.z*S.y*S.x)); document.getElementById("oVal").textContent=O; document.getElementById("fVal").textContent=F; document.getElementById("lVal").textContent=L; document.getElementById("fill").style.width=(F/40*100)+"%"; document.getElementById("mannVals").textContent=`x=${S.x} · y=${S.y} · z=${S.z}`; document.getElementById("mannRes").textContent=`ha) = ${F} · ${L===0?'COMPLETTUM L=0':'DRIFT L!=0'}`; document.getElementById("mannState").textContent=S.inMann?" )in( )mann ( — drinnen gehalten":S.ha?"ha) — offen":"— zu —"; document.getElementById("mannFace").textContent=S.inMann?")mann(":(S.ha?"ha)":"(mann)"); S.history.push({t:new Date().toISOString(),...S}); }
+function ha(){ S.ha=true; document.getElementById("bHa").classList.add("on"); log("ha) — geöffnet. Ha. Ausatmen. Ankommen."); calc(); }
+function callX(){ S.x=parseFloat(document.getElementById("vx").value)||0; document.getElementById("dx").classList.add("on"); log(`x() = ${S.x} — Breite, EARN`); calc(); }
+function callY(){ S.y=parseFloat(document.getElementById("vy").value)||0; document.getElementById("dy").classList.add("on"); log(`y() = ${S.y} — Höhe, VECTOR`); calc(); }
+function callZ(){ S.z=parseFloat(document.getElementById("vz").value)||0; document.getElementById("dz").classList.add("on"); log(`z() = ${S.z} — Tiefe, L-Linie`); calc(); }
+function inMann(){ if(!S.ha) ha(); S.inMann=true; log(")in( )mann ( — ABER. Nicht raus. Rein. Mann hält innen.",true); calc(); }
+function runAll(){ ha(); callX(); callY(); callZ(); inMann(); log("ha)x()y()z() aber )in( )mann ( — DURCH. COMPLETTUM wenn L=0."); }
+function resetAll(){ S={x:0,y:0,z:0,ha:false,inMann:false,history:[]}; document.querySelectorAll(".dot").forEach(e=>e.classList.remove("on")); document.getElementById("bHa").classList.remove("on"); log("RESET / LIE — alles zurück in Mann, nichts gelöscht, nur angehängt."); calc(); }
+calc(); log("NEU TECH geladen: ha)x()y()z() aber )in( )mann (");
+</script></body></html>
