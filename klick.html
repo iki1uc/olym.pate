@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Geschlossene Architektur — 729 → 81 → 9 → 3 → 1 — NC</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#090d14;color:#e8edf5;font-family:system-ui,sans-serif;padding:14px}
+h1{margin:0;color:#ffcc33}.sub{color:#8a94a8;font-size:13px}
+.card{background:#111827;border:1px solid #243044;border-radius:16px;padding:14px;margin:12px 0}
+.card.gold{border-color:#ffcc33}
+.mono{font-family:ui-monospace,monospace;font-size:12px;white-space:pre-wrap;color:#cbd5e1}
+button{cursor:pointer;border:1px solid #243044;background:#1a2436;color:#fff;border-radius:999px;padding:10px 16px;font-weight:800}
+button.gold{background:#ffcc33;color:#090d14}button.green{background:#39ff88;color:#090d14}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.big{font-size:28px;font-weight:900}
+.ZIEL{color:#39ff88}.STABIL{color:#ffcc33}.OFFEN{color:#ff8c00}.KRITISCH{color:#ff2d55}
+.matrix{display:grid;grid-template-columns:repeat(9,1fr);gap:3px}.cell{aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;background:#0b1220;border:1px solid #243044}
+.cell.on{border-color:#ffcc33}
+input[type=range]{width:100%}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{border-bottom:1px solid #243044;padding:6px;text-align:left}
+.layer{border:1px solid #243044;border-radius:12px;padding:10px;margin:6px 0}.layer b{color:#ffcc33}
+</style></head><body>
+<h1>Geschlossene Architektur</h1>
+<p class="sub">iki1uc / our.oi · 1 Datei · 1 Name = 1 Respo · 1 Chip = 1 Platz · Alt links, neu rechts · Nichts gelöscht, nur angehängt</p>
+
+<div class="card gold"><pre class="mono" style="margin:0">729 MATRIX
+  ↓
+ 81
+  ↓
+  9
+  ↓
+  3
+  ↓
+  1
+
+MATRIX CORE + RESPO CORE + BUND CORE
+  ↓
+FINAL CORE
+  ↓
+KRITISCH / OFFEN / STABIL / ZIEL</pre></div>
+
+<div class="grid">
+<div class="card"><div>MATRIX CORE</div><div class="big" id="ui-matrix">0.000</div><div class="mono" id="ui-matrix-detail">729→81→9→3→1</div></div>
+<div class="card"><div>RESPO CORE</div><div class="big" id="ui-respo">0.000</div><div class="mono" id="ui-respo-detail">0 / 4 aktiv</div></div>
+<div class="card"><div>BUND CORE</div><div class="big" id="ui-bund">1.000</div><div class="mono">B = (OP + iki1uc + iki2li)/3 · L = 1-B</div></div>
+</div>
+
+<div class="card gold"><div>FINAL CORE</div><div class="big" id="ui-final">0.000</div><div class="big" id="ui-status">OFFEN</div><div class="mono">FINAL = (MATRIX + RESPO + BUND) / 3 · ZIEL ≥0.85 · STABIL ≥0.60 · OFFEN ≥0.30 · sonst KRITISCH</div></div>
+
+<div class="card"><h2 style="margin:0">729 MATRIX — 9 Layer × 81 Zellen — Klick = nächster Zustand</h2>
+<p class="mono">· = 0 (leer) · ❄ = 0.4 (iced) · ≈ = 0.65 (watered) · ✿ = 1.0 (life) · ✕ = 0.0 (unlife) · ▲ = 0.85 (ignited) — Reihenfolge: · → ❄ → ≈ → ✿ → ✕ → ▲ → ·</p>
+<div id="layers"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="gold" id="btn-fill">✿ ALLES LEBEN</button><button id="btn-clear">· ALLES LEER</button><button id="btn-demo">▲ DEMO: 729→1</button><button class="green" id="btn-kralle">🦅 KRALLEN-PRÜFUNG</button></div>
+<div class="mono" id="kralle-out">Kralle: —</div></div>
+
+<div class="card" id="respo"><h2 style="margin:0">RESPO CORE — Async RESPO</h2>
+<p class="mono">1 Name = 1 Respo. CALC gibt jeder Partei eigene Kopie. MOVE# = CALC("MOVE#"). Krallen: 1 Chip = 1 Platz, kein Doppel.</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="cmd gold" data-cmd="MOVE#">MOVE#</button>
+<button class="cmd" data-cmd="SCAN">SCAN</button>
+<button class="cmd" data-cmd="CALC">CALC</button>
+<button class="cmd" data-cmd="START">START</button>
+<button class="cmd" data-cmd="WAKE">WAKE</button>
+<button class="cmd" data-cmd="HOME">HOME 40</button>
+<button class="cmd green" data-cmd="WUNDER">WUNDER → HOME 40</button>
+</div>
+<div class="mono" id="respo-out">— noch kein RESPO —</div>
+<table><thead><tr><th>Partei</th><th>op.from</th><th>op.nc</th></tr></thead><tbody id="parties-body"></tbody></table></div>
+
+<div class="card"><h2 style="margin:0">BUND CORE</h2>
+<div class="grid"><div><label>OP — STATUS <b id="v-op">1.00</b><input type="range" id="s-op" min="0" max="1" step="0.01" value="1"></label></div><div><label>iki1uc — GEOMETRIE <b id="v-iki1">1.00</b><input type="range" id="s-iki1" min="0" max="1" step="0.01" value="1"></label></div><div><label>iki2li — IDENTITÄT <b id="v-iki2">1.00</b><input type="range" id="s-iki2" min="0" max="1" step="0.01" value="1"></label></div></div>
+<p class="mono">B = <span id="res-B">1.000</span> · L = <span id="res-L">0.000</span> · DREIECK_GARANTIERT iff B=1 · S1: A+B_winkel &lt; 180 · S2: ID != UNBEKANNT · S3: S1 AND S2</p></div>
+
+<div class="card"><h2 style="margin:0">ZEUGE — Serielle await-Hashkette</h2><p class="mono">Jeder Eintrag wartet auf den vorherigen. prevHash → hash. Nichts gelöscht. Kette bricht, wenn einer fehlt.</p><div class="mono" id="zeuge">—</div><button id="btn-zeuge">Zeuge prüfen</button></div>
+
+<script>
+/* ============ GESCHLOSSENE ARCHITEKTUR — 1 <script>-Block ============ */
+const SCORE={ "·":0,"❄":0.4,"≈":0.65,"✿":1.0,"✕":0.0,"▲":0.85 };
+const STATES=["·","❄","≈","✿","✕","▲"];
+const muSharp={nc:"NC-GANZ"};
+const parties=[{id:1,name:"P1",op:null},{id:2,name:"P2",op:null},{id:3,name:"P3",op:null},{id:4,name:"P4",op:null}];
+function kopie(x){ if(x===null||typeof x!=="object") return x; try{return structuredClone(x);}catch{return JSON.parse(JSON.stringify(x));} }
+function CALC(input){
+  const nc=muSharp.nc;
+  parties.forEach(p=>{ p.op={from:kopie(input),nc}; });
+  return {nc,parties:parties.map(p=>({id:p.id,name:p.name,op:{from:kopie(p.op.from),nc:p.op.nc}}))};
+}
+function MOVEsharp(){ return CALC("MOVE#"); }
+/* ---- 729→81→9→3→1 ---- */
+function reduce729to81(layers){ return layers.map(layer=>{ let sum=0; for(const s of layer) sum+=SCORE[s]??0; return sum/81; }); }
+function reduce81to9(v81){ const out=[]; for(let i=0;i<9;i++){ const block=[]; for(let j=0;j<9;j++) block.push(v81[(j*9)+i]); out.push(block.reduce((a,b)=>a+b,0)/9);} return out; }
+function reduce9to3(v9){ return [(v9[0]+v9[1]+v9[2])/3,(v9[3]+v9[4]+v9[5])/3,(v9[6]+v9[7]+v9[8])/3]; }
+function reduce3to1(v3){ return (v3[0]+v3[1]+v3[2])/3; }
+function build729Core(){
+  if(!window.layers) return {v81:[],v9:[],v3:[0,0,0],core:0};
+  const v81=reduce729to81(window.layers);
+  const v9=reduce81to9(v81);
+  const v3=reduce9to3(v9);
+  const core=reduce3to1(v3);
+  return {v81,v9,v3,core};
+}
+/* ---- RESPO CORE ---- */
+function calcRespoCore(){ let active=0; for(const p of parties){ if(p.op) active++; } return active/parties.length; }
+/* ---- BUND CORE ---- */
+function bundCore(){
+  const b=parseFloat(document.getElementById("res-B").textContent);
+  return Number.isFinite(b)?b:0;
+}
+/* ---- FINAL CORE ---- */
+function finalCore(){
+  const matrix=build729Core();
+  const respo=calcRespoCore();
+  const bund=bundCore();
+  return {matrixCore:matrix.core,respoCore:respo,bundCore:bund,final:(matrix.core+respo+bund)/3,matrix};
+}
+/* ---- HALT ---- */
+function calcStatus(){
+  const value=finalCore().final;
+  if(value>=0.85) return "ZIEL";
+  if(value>=0.60) return "STABIL";
+  if(value>=0.30) return "OFFEN";
+  return "KRITISCH";
+}
+/* ---- ZEUGE: serielle await-Hashkette ---- */
+let zeugeKette=[];
+let zeugeLock=Promise.resolve();
+async function hashStr(s){ const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)); return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("").slice(0,16); }
+async function schreibeZeuge(typ,msg){
+  // seriell: wartet auf vorherigen Eintrag
+  zeugeLock=zeugeLock.then(async()=>{
+    const prev=zeugeKette.length?zeugeKette[zeugeKette.length-1].hash:"0000000000000000";
+    const hash=await hashStr(prev+"|"+typ+"|"+msg+"|"+Date.now());
+    zeugeKette.push({typ,msg,prev,hash,time:new Date().toLocaleTimeString("de-DE")});
+    renderZeuge();
+  });
+  await zeugeLock;
+}
+function renderZeuge(){
+  document.getElementById("zeuge").textContent=zeugeKette.slice(-20).reverse().map(z=>`[${z.time}] ${z.typ} — ${z.msg}\n  prev=${z.prev} hash=${z.hash}`).join("\n")||"—";
+}
+async function meldeKopf(){ const f=finalCore(); await schreibeZeuge("KOPF",`FINAL ${f.final.toFixed(3)} · ${calcStatus()} · M ${f.matrixCore.toFixed(3)} R ${f.respoCore.toFixed(3)} B ${f.bundCore.toFixed(3)}`); }
+/* ---- Krallen-Prüfung ---- */
+function krallenPruefung(){
+  const seen=new Map(); const dups=[];
+  // 1) Parteien: 1 Name = 1 Respo
+  parties.forEach(p=>{ if(seen.has(p.name)) dups.push("Partei doppelt: "+p.name); seen.set(p.name,1); });
+  // 2) Matrix: 9 Layer × 81 Zellen
+  if(!window.layers||window.layers.length!==9) dups.push("Matrix: nicht 9 Layer");
+  else window.layers.forEach((l,i)=>{ if(l.length!==81) dups.push("Layer "+(i+1)+": nicht 81 Zellen"); });
+  // 3) BUND: B muss 0..1 sein
+  const b=bundCore(); if(!(b>=0&&b<=1)) dups.push("BUND B ausserhalb 0..1");
+  // 4) Zeuge-Kette: prev muss zum vorherigen hash passen
+  for(let i=1;i<zeugeKette.length;i++){ if(zeugeKette[i].prev!==zeugeKette[i-1].hash) dups.push("Zeuge-Kette gebrochen bei "+i); }
+  return dups.length?("✕ KRALLE: "+dups.join(" · ")):("✓ KRALLE OK — 1 Name = 1 Respo · 9×81 = 729 · B in 0..1 · Zeuge-Kette geschlossen · "+zeugeKette.length+" Einträge");
+}
+/* ---- UI ---- */
+function zeigeErgebnis(out,cmd,result){
+  out.textContent=`${cmd} → NC ${result.nc}\n`+result.parties.map(p=>`${p.name}: from=${JSON.stringify(p.op.from)} nc=${p.op.nc}`).join("\n");
+  document.getElementById("parties-body").innerHTML=result.parties.map(p=>`<tr><td>${p.name}</td><td>${JSON.stringify(p.op.from)}</td><td>${p.op.nc}</td></tr>`).join("");
+}
+function renderMatrix(){
+  const el=document.getElementById("layers");
+  el.innerHTML=window.layers.map((layer,li)=>`<div class="layer"><b>Layer ${li+1}</b> — 81 Zellen — Ø ${(layer.reduce((a,s)=>a+(SCORE[s]??0),0)/81).toFixed(3)}<div class="matrix">${layer.map((s,ci)=>`<div class="cell" data-l="${li}" data-c="${ci}">${s}</div>`).join("")}</div></div>`).join("");
+  el.querySelectorAll(".cell").forEach(c=>c.onclick=async()=>{
+    const li=+c.dataset.l, ci=+c.dataset.c;
+    const cur=window.layers[li][ci];
+    window.layers[li][ci]=STATES[(STATES.indexOf(cur)+1)%STATES.length];
+    await schreibeZeuge("MATRIX",`Layer ${li+1} Zelle ${ci+1} ${cur} → ${window.layers[li][ci]}`);
+    refresh(); renderMatrix(); await meldeKopf();
+  });
+}
+function refresh(){
+  const f=finalCore(); const st=calcStatus();
+  document.getElementById("ui-matrix").textContent=f.matrixCore.toFixed(3);
+  document.getElementById("ui-matrix-detail").textContent=`729→81→9→3→1 · v9=[${f.matrix.v9.map(x=>x.toFixed(2)).join(", ")}] · v3=[${f.matrix.v3.map(x=>x.toFixed(2)).join(", ")}]`;
+  document.getElementById("ui-respo").textContent=f.respoCore.toFixed(3);
+  document.getElementById("ui-respo-detail").textContent=`${parties.filter(p=>p.op).length} / 4 aktiv`;
+  document.getElementById("ui-bund").textContent=f.bundCore.toFixed(3);
+  document.getElementById("ui-final").textContent=f.final.toFixed(3);
+  const sEl=document.getElementById("ui-status"); sEl.textContent=st; sEl.className="big "+st;
+  // BUND live aus Slidern
+  const op=+document.getElementById("s-op").value, i1=+document.getElementById("s-iki1").value, i2=+document.getElementById("s-iki2").value;
+  document.getElementById("v-op").textContent=op.toFixed(2); document.getElementById("v-iki1").textContent=i1.toFixed(2); document.getElementById("v-iki2").textContent=i2.toFixed(2);
+  const B=(op+i1+i2)/3, L=1-B;
+  document.getElementById("res-B").textContent=B.toFixed(3); document.getElementById("res-L").textContent=L.toFixed(3);
+}
+/* ---- Async RESPO ---- */
+document.addEventListener("DOMContentLoaded",()=>{
+  const respo=document.getElementById("respo");
+  const out=document.getElementById("respo-out");
+  respo.addEventListener("click",async e=>{
+    const btn=e.target.closest(".cmd"); if(!btn) return;
+    const cmd=(btn.dataset.cmd||btn.textContent).trim();
+    const result=cmd==="MOVE#"?MOVEsharp():CALC(cmd);
+    zeigeErgebnis(out,cmd,result);
+    await schreibeZeuge("RESPO",`${cmd} → NC ${result.nc}`);
+    await meldeKopf();
+    refresh();
+  });
+});
+window.layers=Array.from({length:9},()=>Array(81).fill("·"));
+document.getElementById("btn-fill").onclick=async()=>{ window.layers=window.layers.map(()=>Array(81).fill("✿")); await schreibeZeuge("MATRIX","ALLE 729 → ✿"); renderMatrix(); refresh(); await meldeKopf(); };
+document.getElementById("btn-clear").onclick=async()=>{ window.layers=Array.from({length:9},()=>Array(81).fill("·")); await schreibeZeuge("MATRIX","ALLE 729 → ·"); renderMatrix(); refresh(); await meldeKopf(); };
+document.getElementById("btn-demo").onclick=async()=>{ window.layers=window.layers.map((l,li)=>l.map((_,ci)=>STATES[(li+ci)%STATES.length])); await schreibeZeuge("MATRIX","DEMO: 729→1 Muster"); renderMatrix(); refresh(); await meldeKopf(); };
+document.getElementById("btn-kralle").onclick=async()=>{ const r=krallenPruefung(); document.getElementById("kralle-out").textContent=r; await schreibeZeuge("KRALLE",r); };
+document.getElementById("btn-zeuge").onclick=async()=>{ await schreibeZeuge("PRÜFUNG","Zeuge-Kette geprüft"); document.getElementById("kralle-out").textContent=krallenPruefung(); };
+["s-op","s-iki1","s-iki2"].forEach(id=>document.getElementById(id).addEventListener("input",async()=>{ refresh(); }));
+renderMatrix(); refresh();
+schreibeZeuge("START","Geschlossene Architektur geladen — 729→81→9→3→1 — 1 Datei").then(()=>meldeKopf());
+</script></body></html>
